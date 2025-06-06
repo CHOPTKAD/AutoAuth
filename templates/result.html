@@ -1,51 +1,199 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Prior Auth Summary</title>
     <style>
-        body {
-            font-family: sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        h1 {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 2rem;
             text-align: center;
         }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .field-group {
+            margin-bottom: 2rem;
+        }
+
         label {
-            font-weight: bold;
-            margin-top: 20px;
             display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        p {
-            margin: 6px 0 20px 0;
-            padding: 10px;
-            background: #f4f4f4;
-            border-radius: 6px;
+
+        .field-content {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #4a5568;
+            line-height: 1.6;
+            font-size: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
         }
-        a {
-            display: inline-block;
-            margin-top: 30px;
+
+        .field-content:empty::before {
+            content: "No information provided";
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .navigation {
+            background: #f7fafc;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             text-decoration: none;
-            color: #007bff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Auto-Filled Prior Auth Form (Demo)</h1>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Prior Authorization Summary</h1>
+            <p class="subtitle">Auto-generated clinical documentation</p>
+        </div>
 
-    <label>Diagnosis:</label>
-    <p>{{ diagnosis }}</p>
+        <div class="content">
+            <div class="field-group">
+                <label>📋 Diagnosis</label>
+                <div class="field-content">{{ diagnosis }}</div>
+            </div>
 
-    <label>Medications Tried:</label>
-    <p>{{ meds }}</p>
+            <div class="field-group">
+                <label>💊 Medications Tried</label>
+                <div class="field-content">{{ meds }}</div>
+            </div>
 
-    <label>Justification:</label>
-    <p>{{ justification }}</p>
+            <div class="field-group">
+                <label>📝 Clinical Justification</label>
+                <div class="field-content">{{ justification }}</div>
+            </div>
+        </div>
 
-    <a href="/">← Back</a>
+        <div class="navigation">
+            <a href="/" class="back-button">
+                ← Return to Home
+            </a>
+            
+            <div class="actions">
+                <a href="#" class="action-btn" onclick="window.print(); return false;">
+                    🖨️ Print Summary
+                </a>
+                <a href="/covermymed" class="action-btn">
+                    📋 Full Form
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

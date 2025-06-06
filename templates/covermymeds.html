@@ -1,111 +1,347 @@
+
 <!DOCTYPE html>
 <html>
 <head>
   <title>CoverMyMeds Prior Auth</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      max-width: 900px;
-    }
-    textarea, input, select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 1rem;
+    * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
-      font-size: 1rem;
     }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+
+    .content {
+      padding: 2rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .form-section {
+      background: #f8fafc;
+      border-radius: 15px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .form-section h2 {
+      color: #2d3748;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
     label {
-      font-weight: bold;
       display: block;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .follow-up {
+      background: #fff5f5;
+      border: 2px solid #fed7d7;
+      border-radius: 10px;
+      padding: 1.5rem;
       margin-top: 1rem;
     }
-    button {
-      padding: 10px 16px;
-      font-size: 1rem;
-      margin-right: 10px;
+
+    .follow-up h3 {
+      color: #c53030;
       margin-bottom: 1rem;
-      cursor: pointer;
     }
-    hr {
-      margin: 2rem 0;
+
+    .readonly-input {
+      background: #f7fafc !important;
+      color: #718096;
+    }
+
+    .export-section {
+      background: #f0fff4;
+      border: 2px solid #9ae6b4;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .export-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .export-buttons button {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    }
+
+    .export-buttons button:hover {
+      box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-success {
+      background: #48bb78;
+    }
+
+    .status-pending {
+      background: #ed8936;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .content {
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons, .export-buttons {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>CoverMyMeds Prior Authorization Tool</h1>
+  <div class="container">
+    <div class="header">
+      <h1>🏥 CoverMyMeds Prior Auth</h1>
+      <p>Streamlined prior authorization processing with AI assistance</p>
+    </div>
 
-  <button onclick="loadSimulatedEHR()">📂 Load Simulated EHR Record (JSON)</button>
-  <button onclick="submitToAI()">Generate Summary (manual)</button>
+    <div class="content">
+      <div class="action-buttons">
+        <button onclick="loadSimulatedEHR()">📂 Load EHR Record</button>
+        <button onclick="submitToAI()">🤖 Generate Summary</button>
+      </div>
 
-  <label for="ehr_input">Optional: Enter Patient Note Manually</label>
-  <textarea id="ehr_input" placeholder="Free-text note for manual mode (optional)"></textarea>
+      <div class="form-section">
+        <div class="form-group">
+          <label for="ehr_input">Patient Note (Optional Manual Entry)</label>
+          <textarea id="ehr_input" placeholder="Enter free-text patient notes here for manual processing..."></textarea>
+        </div>
 
-  <label for="sessionSelect">Load Previous Session:</label>
-  <select id="sessionSelect" onchange="loadSession(this.value)">
-    <option value="">-- Select a session --</option>
-  </select>
+        <div class="form-group">
+          <label for="sessionSelect">Previous Sessions</label>
+          <select id="sessionSelect" onchange="loadSession(this.value)">
+            <option value="">-- Select a previous session --</option>
+          </select>
+        </div>
+      </div>
 
-  <hr>
+      <div class="form-section">
+        <h2>📋 Prior Authorization Form</h2>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="full_name" placeholder="Patient full name">
+          </div>
 
-  <h2>Prior Authorization Form</h2>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="text" id="dob" placeholder="MM/DD/YYYY">
+          </div>
 
-  <label>Full Name:</label>
-  <input type="text" id="full_name">
+          <div class="form-group">
+            <label>Age</label>
+            <input type="text" id="age" placeholder="Patient age">
+          </div>
 
-  <label>Date of Birth:</label>
-  <input type="text" id="dob">
+          <div class="form-group">
+            <label>Sex</label>
+            <input type="text" id="sex" placeholder="Male/Female/Other">
+          </div>
 
-  <label>Age:</label>
-  <input type="text" id="age">
+          <div class="form-group">
+            <label>Provider Name</label>
+            <input type="text" id="provider_name" placeholder="Dr. Name">
+          </div>
 
-  <label>Sex:</label>
-  <input type="text" id="sex">
+          <div class="form-group">
+            <label>Clinic</label>
+            <input type="text" id="clinic" placeholder="Clinic/Hospital name">
+          </div>
 
-  <label>Provider Name:</label>
-  <input type="text" id="provider_name">
+          <div class="form-group">
+            <label>Provider Phone</label>
+            <input type="text" id="provider_phone" placeholder="(XXX) XXX-XXXX">
+          </div>
 
-  <label>Clinic:</label>
-  <input type="text" id="clinic">
+          <div class="form-group">
+            <label>NPI Number</label>
+            <input type="text" id="npi" placeholder="National Provider ID">
+          </div>
 
-  <label>Provider Phone:</label>
-  <input type="text" id="provider_phone">
+          <div class="form-group">
+            <label>Insurance Name</label>
+            <input type="text" id="insurance_name" placeholder="Insurance provider">
+          </div>
 
-  <label>NPI:</label>
-  <input type="text" id="npi">
+          <div class="form-group">
+            <label>Insurance ID</label>
+            <input type="text" id="insurance_id" placeholder="Member ID">
+          </div>
 
-  <label>Insurance Name:</label>
-  <input type="text" id="insurance_name">
+          <div class="form-group">
+            <label>Group Number</label>
+            <input type="text" id="group_number" placeholder="Group/Plan number">
+          </div>
 
-  <label>Insurance ID:</label>
-  <input type="text" id="insurance_id">
+          <div class="form-group">
+            <label>Diagnosis/Conditions</label>
+            <input type="text" id="conditions" placeholder="Primary diagnoses">
+          </div>
 
-  <label>Group Number:</label>
-  <input type="text" id="group_number">
+          <div class="form-group">
+            <label>Medication Requested</label>
+            <input type="text" id="medications" placeholder="Requested medication">
+          </div>
 
-  <label>Diagnosis/Condition(s):</label>
-  <input type="text" id="conditions">
+          <div class="form-group">
+            <label>Known Allergies</label>
+            <input type="text" id="allergies" placeholder="Drug allergies">
+          </div>
 
-  <label>Medication Requested:</label>
-  <input type="text" id="medications">
+          <div class="form-group">
+            <label>Prior Treatments</label>
+            <input type="text" id="prior_treatments" placeholder="Previously tried medications">
+          </div>
 
-  <label>Allergies:</label>
-  <input type="text" id="allergies">
+          <div class="form-group">
+            <label>Reason for Request</label>
+            <input type="text" id="reason_for_request" placeholder="Clinical justification">
+          </div>
+        </div>
 
-  <label>Past Medications Tried:</label>
-  <input type="text" id="prior_treatments">
+        <div id="followup_section" class="follow-up" style="display: none;"></div>
+      </div>
 
-  <label>Reason for Request:</label>
-  <input type="text" id="reason_for_request">
-
-  <div id="followup_section"></div>
-
-  <hr>
-
-  <button onclick="submitToPharmacy()">Submit to Pharmacy</button>
-  <button onclick="exportAsJSON()">Export as JSON</button>
-  <button onclick="exportAsPDF()">Export as PDF</button>
+      <div class="export-section">
+        <h2>🚀 Submit & Export</h2>
+        <div class="export-buttons">
+          <button onclick="submitToPharmacy()">📤 Submit to Pharmacy</button>
+          <button onclick="exportAsJSON()">📄 Export JSON</button>
+          <button onclick="exportAsPDF()">📑 Export PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     let currentSessionId = "";
@@ -132,18 +368,35 @@
 
     function renderFollowUpQuestions(followUp) {
       const section = document.getElementById("followup_section");
-      section.innerHTML = "<h3>Follow-Up Questions</h3>";
+      if (Object.keys(followUp).length === 0) {
+        section.style.display = "none";
+        return;
+      }
+      
+      section.style.display = "block";
+      section.innerHTML = "<h3>📝 Follow-Up Questions</h3>";
       for (const [question, answer] of Object.entries(followUp)) {
+        const formattedQuestion = question.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
         section.innerHTML += `
-          <label>${question.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}:</label>
-          <input type="text" value="${answer}" readonly>
+          <div class="form-group">
+            <label>${formattedQuestion}</label>
+            <input type="text" value="${answer}" class="readonly-input" readonly>
+          </div>
         `;
       }
     }
 
     function submitToAI() {
       const input = document.getElementById("ehr_input").value.trim();
-      if (!input) return alert("Please paste a note before clicking Generate Summary.");
+      if (!input) {
+        alert("⚠️ Please enter patient notes before generating summary.");
+        return;
+      }
+      
+      const button = event.target;
+      button.innerHTML = "🔄 Processing...";
+      button.disabled = true;
+      
       fetch("/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -155,14 +408,23 @@
           currentSessionId = response.session_id;
           populateForm(response.output);
           refreshSessionDropdown();
+          alert("✅ Summary generated successfully!");
         } else {
-          alert("AI Error: " + response.error);
+          alert("❌ AI Error: " + response.error);
         }
       })
-      .catch(err => alert("Request failed: " + err));
+      .catch(err => alert("❌ Request failed: " + err))
+      .finally(() => {
+        button.innerHTML = "🤖 Generate Summary";
+        button.disabled = false;
+      });
     }
 
     function loadSimulatedEHR() {
+      const button = event.target;
+      button.innerHTML = "📂 Loading...";
+      button.disabled = true;
+      
       fetch("/static/ehr_patient.json")
         .then(res => {
           if (!res.ok) throw new Error("JSON file not found");
@@ -170,24 +432,28 @@
         })
         .then(json => {
           document.getElementById("ehr_input").value = JSON.stringify(json, null, 2);
-          fetch("/summarize", {
+          return fetch("/summarize", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ehr_json: json, session_id: currentSessionId })
-          })
-          .then(res => res.json())
-          .then(response => {
-            if (response.status === 200) {
-              currentSessionId = response.session_id;
-              populateForm(response.output);
-              refreshSessionDropdown();
-            } else {
-              alert("AI Error: " + response.error);
-            }
-          })
-          .catch(err => alert("AI error: " + err));
+          });
         })
-        .catch(err => alert("Fetch failed: " + err));
+        .then(res => res.json())
+        .then(response => {
+          if (response.status === 200) {
+            currentSessionId = response.session_id;
+            populateForm(response.output);
+            refreshSessionDropdown();
+            alert("✅ EHR data loaded and processed!");
+          } else {
+            alert("❌ AI Error: " + response.error);
+          }
+        })
+        .catch(err => alert("❌ Failed to load EHR data: " + err))
+        .finally(() => {
+          button.innerHTML = "📂 Load EHR Record";
+          button.disabled = false;
+        });
     }
 
     function refreshSessionDropdown() {
@@ -195,11 +461,11 @@
         .then(res => res.json())
         .then(sessions => {
           const select = document.getElementById("sessionSelect");
-          select.innerHTML = '<option value="">-- Select a session --</option>';
+          select.innerHTML = '<option value="">-- Select a previous session --</option>';
           sessions.forEach(sid => {
             const opt = document.createElement("option");
             opt.value = sid;
-            opt.textContent = sid;
+            opt.textContent = `Session: ${sid.substring(0, 8)}...`;
             select.appendChild(opt);
           });
         });
@@ -210,21 +476,34 @@
       currentSessionId = id;
       fetch(`/session/${id}`)
         .then(res => res.json())
-        .then(data => populateForm(data));
+        .then(data => {
+          populateForm(data);
+          alert("✅ Session loaded successfully!");
+        });
     }
 
     function exportAsJSON() {
-      if (!currentSessionId) return alert("No session to export.");
+      if (!currentSessionId) {
+        alert("⚠️ No session to export. Please generate a summary first.");
+        return;
+      }
       window.open(`/export/json/${currentSessionId}`);
     }
 
     function exportAsPDF() {
-      if (!currentSessionId) return alert("No session to export.");
+      if (!currentSessionId) {
+        alert("⚠️ No session to export. Please generate a summary first.");
+        return;
+      }
       window.open(`/export/pdf/${currentSessionId}`);
     }
 
     function submitToPharmacy() {
-      alert("This would submit the form to the pharmacy. Demo only.");
+      if (!currentSessionId) {
+        alert("⚠️ Please generate a summary before submitting.");
+        return;
+      }
+      alert("🎉 This would submit the form to the pharmacy. Demo functionality only.");
     }
 
     window.onload = refreshSessionDropdown;

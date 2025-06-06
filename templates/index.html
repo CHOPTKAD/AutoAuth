@@ -1,32 +1,254 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AutoAuth</title>
+  <title>AutoAuth - Patient Summary</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      padding: 3rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #2d3748;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+      font-weight: 300;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 1.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    textarea::placeholder {
+      color: #a0aec0;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .output-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #output {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 1.5rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #2d3748;
+      max-height: 400px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #718096;
+      font-style: italic;
+      margin-top: 1rem;
+    }
+
+    .navigation {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .navigation a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .navigation a:hover {
+      color: #764ba2;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .container {
+        padding: 2rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Enter Dummy Patient Info</h1>
-  <textarea id="input" rows="10" cols="50" placeholder="Diagnosis, labs, prior meds..."></textarea><br/>
-  <button onclick="submit()">Generate Summary</button>
+  <div class="container">
+    <h1>🏥 AutoAuth</h1>
+    <p class="subtitle">AI-powered patient summary generation</p>
+    
+    <textarea 
+      id="input" 
+      placeholder="Enter patient information: diagnosis, lab results, medications, symptoms, clinical notes...">
+    </textarea>
+    
+    <button onclick="submit()" id="submitBtn">
+      <span>🤖 Generate Summary</span>
+    </button>
+    
+    <div class="loading" id="loading">
+      Processing patient data...
+    </div>
 
-  <pre id="output"></pre>
+    <div class="output-section" id="outputSection" style="display: none;">
+      <h3 style="color: #2d3748; margin-bottom: 1rem;">📋 Generated Summary</h3>
+      <pre id="output"></pre>
+    </div>
+
+    <div class="navigation">
+      <a href="/covermymed">→ Go to Full Prior Auth Form</a>
+    </div>
+  </div>
 
   <script>
     async function submit() {
-      const input = document.getElementById("input").value;
+      const input = document.getElementById("input").value.trim();
+      const submitBtn = document.getElementById("submitBtn");
+      const loading = document.getElementById("loading");
+      const outputSection = document.getElementById("outputSection");
+      const output = document.getElementById("output");
 
-      const res = await fetch("/summarize", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ input })
-      });
+      if (!input) {
+        alert("⚠️ Please enter patient information before generating summary.");
+        return;
+      }
 
-      const data = await res.json();
-      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>🔄 Processing...</span>';
+      loading.style.display = "block";
+      outputSection.style.display = "none";
+
+      try {
+        const res = await fetch("/summarize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ input })
+        });
+
+        const data = await res.json();
+        
+        // Hide loading and show results
+        loading.style.display = "none";
+        outputSection.style.display = "block";
+        
+        if (data.status === 200) {
+          output.textContent = JSON.stringify(data.output, null, 2);
+        } else {
+          output.textContent = `Error: ${data.error}`;
+          output.style.color = "#e53e3e";
+        }
+      } catch (error) {
+        loading.style.display = "none";
+        outputSection.style.display = "block";
+        output.textContent = `Network Error: ${error.message}`;
+        output.style.color = "#e53e3e";
+      } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>🤖 Generate Summary</span>';
+      }
     }
+
+    // Allow Enter key to submit (with Ctrl/Cmd)
+    document.getElementById("input").addEventListener("keydown", function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        submit();
+      }
+    });
   </script>
 </body>
 </html>
