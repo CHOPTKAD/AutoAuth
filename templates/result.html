@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prior Auth Summary</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+        }
+        p {
+            margin: 6px 0 20px 0;
+            padding: 10px;
+            background: #f4f4f4;
+            border-radius: 6px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Auto-Filled Prior Auth Form (Demo)</h1>
+
+    <label>Diagnosis:</label>
+    <p>{{ diagnosis }}</p>
+
+    <label>Medications Tried:</label>
+    <p>{{ meds }}</p>
+
+    <label>Justification:</label>
+    <p>{{ justification }}</p>
+
+    <a href="/">← Back</a>
+</body>
+</html>

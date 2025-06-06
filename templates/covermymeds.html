@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CoverMyMeds Prior Auth</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      max-width: 900px;
+    }
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 1rem;
+      margin-right: 10px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+    hr {
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>CoverMyMeds Prior Authorization Tool</h1>
+
+  <button onclick="loadSimulatedEHR()">📂 Load Simulated EHR Record (JSON)</button>
+  <button onclick="submitToAI()">Generate Summary (manual)</button>
+
+  <label for="ehr_input">Optional: Enter Patient Note Manually</label>
+  <textarea id="ehr_input" placeholder="Free-text note for manual mode (optional)"></textarea>
+
+  <label for="sessionSelect">Load Previous Session:</label>
+  <select id="sessionSelect" onchange="loadSession(this.value)">
+    <option value="">-- Select a session --</option>
+  </select>
+
+  <hr>
+
+  <h2>Prior Authorization Form</h2>
+
+  <label>Full Name:</label>
+  <input type="text" id="full_name">
+
+  <label>Date of Birth:</label>
+  <input type="text" id="dob">
+
+  <label>Age:</label>
+  <input type="text" id="age">
+
+  <label>Sex:</label>
+  <input type="text" id="sex">
+
+  <label>Provider Name:</label>
+  <input type="text" id="provider_name">
+
+  <label>Clinic:</label>
+  <input type="text" id="clinic">
+
+  <label>Provider Phone:</label>
+  <input type="text" id="provider_phone">
+
+  <label>NPI:</label>
+  <input type="text" id="npi">
+
+  <label>Insurance Name:</label>
+  <input type="text" id="insurance_name">
+
+  <label>Insurance ID:</label>
+  <input type="text" id="insurance_id">
+
+  <label>Group Number:</label>
+  <input type="text" id="group_number">
+
+  <label>Diagnosis/Condition(s):</label>
+  <input type="text" id="conditions">
+
+  <label>Medication Requested:</label>
+  <input type="text" id="medications">
+
+  <label>Allergies:</label>
+  <input type="text" id="allergies">
+
+  <label>Past Medications Tried:</label>
+  <input type="text" id="prior_treatments">
+
+  <label>Reason for Request:</label>
+  <input type="text" id="reason_for_request">
+
+  <div id="followup_section"></div>
+
+  <hr>
+
+  <button onclick="submitToPharmacy()">Submit to Pharmacy</button>
+  <button onclick="exportAsJSON()">Export as JSON</button>
+  <button onclick="exportAsPDF()">Export as PDF</button>
+
+  <script>
+    let currentSessionId = "";
+
+    function populateForm(data) {
+      document.getElementById("full_name").value = data.full_name || "";
+      document.getElementById("dob").value = data.DOB || "";
+      document.getElementById("age").value = data.age || "";
+      document.getElementById("sex").value = data.sex || "";
+      document.getElementById("provider_name").value = data.provider_name || "";
+      document.getElementById("clinic").value = data.clinic || "";
+      document.getElementById("provider_phone").value = data.provider_phone || "";
+      document.getElementById("npi").value = data.npi || "";
+      document.getElementById("insurance_name").value = data.insurance_name || "";
+      document.getElementById("insurance_id").value = data.insurance_id || "";
+      document.getElementById("group_number").value = data.group_number || "";
+      document.getElementById("conditions").value = (data.conditions || []).join(", ");
+      document.getElementById("medications").value = (data.medications || []).join(", ");
+      document.getElementById("allergies").value = (data.allergies || []).join(", ");
+      document.getElementById("prior_treatments").value = (data.prior_treatments || []).join(", ");
+      document.getElementById("reason_for_request").value = data.reason_for_request || "";
+      renderFollowUpQuestions(data.follow_up || {});
+    }
+
+    function renderFollowUpQuestions(followUp) {
+      const section = document.getElementById("followup_section");
+      section.innerHTML = "<h3>Follow-Up Questions</h3>";
+      for (const [question, answer] of Object.entries(followUp)) {
+        section.innerHTML += `
+          <label>${question.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}:</label>
+          <input type="text" value="${answer}" readonly>
+        `;
+      }
+    }
+
+    function submitToAI() {
+      const input = document.getElementById("ehr_input").value.trim();
+      if (!input) return alert("Please paste a note before clicking Generate Summary.");
+      fetch("/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input, session_id: currentSessionId })
+      })
+      .then(res => res.json())
+      .then(response => {
+        if (response.status === 200) {
+          currentSessionId = response.session_id;
+          populateForm(response.output);
+          refreshSessionDropdown();
+        } else {
+          alert("AI Error: " + response.error);
+        }
+      })
+      .catch(err => alert("Request failed: " + err));
+    }
+
+    function loadSimulatedEHR() {
+      fetch("/static/ehr_patient.json")
+        .then(res => {
+          if (!res.ok) throw new Error("JSON file not found");
+          return res.json();
+        })
+        .then(json => {
+          document.getElementById("ehr_input").value = JSON.stringify(json, null, 2);
+          fetch("/summarize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ehr_json: json, session_id: currentSessionId })
+          })
+          .then(res => res.json())
+          .then(response => {
+            if (response.status === 200) {
+              currentSessionId = response.session_id;
+              populateForm(response.output);
+              refreshSessionDropdown();
+            } else {
+              alert("AI Error: " + response.error);
+            }
+          })
+          .catch(err => alert("AI error: " + err));
+        })
+        .catch(err => alert("Fetch failed: " + err));
+    }
+
+    function refreshSessionDropdown() {
+      fetch("/sessions")
+        .then(res => res.json())
+        .then(sessions => {
+          const select = document.getElementById("sessionSelect");
+          select.innerHTML = '<option value="">-- Select a session --</option>';
+          sessions.forEach(sid => {
+            const opt = document.createElement("option");
+            opt.value = sid;
+            opt.textContent = sid;
+            select.appendChild(opt);
+          });
+        });
+    }
+
+    function loadSession(id) {
+      if (!id) return;
+      currentSessionId = id;
+      fetch(`/session/${id}`)
+        .then(res => res.json())
+        .then(data => populateForm(data));
+    }
+
+    function exportAsJSON() {
+      if (!currentSessionId) return alert("No session to export.");
+      window.open(`/export/json/${currentSessionId}`);
+    }
+
+    function exportAsPDF() {
+      if (!currentSessionId) return alert("No session to export.");
+      window.open(`/export/pdf/${currentSessionId}`);
+    }
+
+    function submitToPharmacy() {
+      alert("This would submit the form to the pharmacy. Demo only.");
+    }
+
+    window.onload = refreshSessionDropdown;
+  </script>
+
+</body>
+</html>

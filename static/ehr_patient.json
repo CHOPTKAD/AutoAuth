@@ -1,0 +1,29 @@
+{
+  "patient": {
+    "full_name": "Marcus Lee",
+    "DOB": "11/22/1965",
+    "age": "58",
+    "sex": "Male"
+  },
+  "provider": {
+    "provider_name": "Dr. Natalie Chen",
+    "clinic": "Southlake Pulmonary Group",
+    "provider_phone": "(817) 555-9812",
+    "npi": "6677889900"
+  },
+  "insurance": {
+    "insurance_name": "Cigna Gold PPO",
+    "insurance_id": "CIG998877",
+    "group_number": "CGP1122"
+  },
+  "medical": {
+    "conditions": ["Chronic Obstructive Pulmonary Disease (COPD)"],
+    "medications": ["Trelegy Ellipta"],
+    "allergies": [],
+    "prior_treatments": [
+      "Spiriva (discontinued due to dry mouth and minimal improvement)",
+      "Symbicort (partial response but discontinued due to tremors)"
+    ],
+    "reason_for_request": "Trelegy is requested due to step therapy failure with previous inhalers and persistent symptoms limiting daily function. Request is not urgent but needed within 1 week."
+  }
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoAuth</title>
+</head>
+<body>
+  <h1>Enter Dummy Patient Info</h1>
+  <textarea id="input" rows="10" cols="50" placeholder="Diagnosis, labs, prior meds..."></textarea><br/>
+  <button onclick="submit()">Generate Summary</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    async function submit() {
+      const input = document.getElementById("input").value;
+
+      const res = await fetch("/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ input })
+      });
+
+      const data = await res.json();
+      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
